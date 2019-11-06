@@ -22,8 +22,8 @@ make -j8 firefly-rk3288.img
 
 如果遇到诸如下述问题：
 
-![please clone](https://raw.githubusercontent.com/whsgzcy/rk3288_debug_kengs/master/images/1.jpg)
+![please clone](https://raw.githubusercontent.com/whsgzcy/rk3288_debug_kengs/master/images/a.jpg)
 
-![please clone](https://raw.githubusercontent.com/whsgzcy/rk3288_debug_kengs/master/images/2.png)
+![please clone](https://raw.githubusercontent.com/whsgzcy/rk3288_debug_kengs/master/images/b.png)
 
 
