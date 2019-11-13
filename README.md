@@ -12,6 +12,62 @@
 
 **2、编译源码**
 
+首先必须install的有，我的环境是Ubuntu16.04 rk3288 5,1
+
+```
+sudo apt-get install lzop
+sudo apt-get install libc6:i386
+sudo ln -s /usr/lib/jvm/jdk1.7.0_76/bin/javap(java javah javadoc javac) /bin/javap(java javah javadoc javac)
+sudo apt-get install bison
+sudo apt-get install flex
+sudo apt-get install libncurses5-dev
+sudo apt-get install gperf
+sudo apt-get install lib32stdc++6
+sudo apt-get  install libxml2-utils
+sudo apt-get install libswitch-perl
+sudo apt-get install g++-multilib
+sudo apt-get install lib32z1
+```
+
+sudo make update-api
+
+```
+如果出现了
+
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+build/core/host_shared_library_internal.mk:44: recipe for target 'out/host/linux-x86/obj32/lib/libnativehelper.so' failed
+
+你需要
+
+cd  <source_android>/art/build/
+vim Android.common_build.mk    //修改第119行
+修改前：
+# Host.
+ART_HOST_CLANG := false
+ifneq ($(WITHOUT_HOST_CLANG),true)
+# By default, host builds use clang for better warnings.
+ART_HOST_CLANG := true
+endif
+修改后：
+# Host.
+ART_HOST_CLANG := false
+ifneq ($(WITHOUT_HOST_CLANG),false)
+# By default, host builds use clang for better warnings.
+ART_HOST_CLANG := true
+endif
+
+编译还是报同样的错误
+sudo cp /usr/bin/ld.gold   <source_android>/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.6/x86_64-linux/bin/ld
+
+最好修改之后都要
+
+sudo make update-api
+
+————————————————
+版权声明：本文为CSDN博主「HelloBirthday」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/u014770862/article/details/52624851
+```
+
 建议还是用官方提供的脚本编译，不过在编译之前一定得先编译kernel
 
 ```
@@ -36,6 +92,8 @@ arch/arm/configs/
 ```
 
 上述问题解决完之后，就可以编译源码了，
+
+sudo usermod -a -G vboxsf darren
 
 ```
 ./FFTools/make.sh -d firefly-rk3288 -j8 -l rk3288_box-userdebug
