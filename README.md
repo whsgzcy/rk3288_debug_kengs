@@ -10,9 +10,24 @@
 
 如果是新的九代CPU的话，Windows必须装win10，相信我，没错的。
 
+如果你要在VBox上共享或挂载一个文件夹的时候，出了可以百度出来的步骤，还有就要执行
+
+```
+//也是，网上一搜真特么多，好标准的坑
+sudo usermod -a -G vboxsf darren（你的用户名称）
+
+eg
+
+sudo usermod -a -G vboxsf whsgzcy
+
+后
+
+reboot
+```
+
 **2、编译源码**
 
-首先必须install的有，我的环境是Ubuntu16.04 rk3288 5,1
+首先必须install的有，我的环境是Ubuntu16.04 rk3288 5.1
 
 ```
 sudo apt-get install lzop
@@ -84,7 +99,7 @@ make -j8 firefly-rk3288.img
 
 ![please clone](https://raw.githubusercontent.com/whsgzcy/rk3288_debug_kengs/master/images/b.png)
 
-你需要去拉一下代码，我试过，真特么的慢，这条路就别想了，直接到git上把rk3288分支上
+你需要去拉一下代码，我试过，真特么的慢，白天你就别想了，晚上12点左右的时候再pull，一觉醒来就好了，或直接到git上把rk3288分支上
 
 ```
 arch/arm/configs/
@@ -92,8 +107,6 @@ arch/arm/configs/
 ```
 
 上述问题解决完之后，就可以编译源码了，
-
-sudo usermod -a -G vboxsf darren
 
 ```
 ./FFTools/make.sh -d firefly-rk3288 -j8 -l rk3288_box-userdebug
