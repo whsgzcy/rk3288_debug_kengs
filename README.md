@@ -67,7 +67,7 @@ endif
 # Host.
 ART_HOST_CLANG := false
 
-特别注意！！！ 下述的一定得为true 否则还会抛出上述错误，有些博客特么的自己都没调试通过就写上去，我已经看到了两个版本
+特别注意！！！ 下述的一定得为true 否则还会抛出上述错误，有些博客特么的自己都没调试就写上去，我已经看到了两个版本
 ifneq ($(WITHOUT_HOST_CLANG),true)
 # By default, host builds use clang for better warnings.
 ART_HOST_CLANG := true
