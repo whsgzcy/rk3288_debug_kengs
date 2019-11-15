@@ -119,17 +119,27 @@ http://wiki.t-firefly.com/zh_CN/Firefly-RK3288/compile_android.html
 
 **二、APP Root**
 
-因为烧写的时候已经是xxx_user_debug的img，所以是有root权限的，但usb root权限和APP root权限不是一回事，如果有需要的话还是得root，
+注意了，又是一个巨坑
+
+看我的提交记录这块也能看出来，也是经过多次修改的，因为根据我的业务的变化，之前认为的东西可能不是一成不变的；
+
+因为烧写的时候已经是xxx_user_debug的img，可执行su，所以是有root权限的，但usb root权限和APP root权限不是一回事，如果有需要的话还是得root；
+
+至少的我的过程是
 
 ```
-参考 https://blog.csdn.net/pcwung/article/details/80213674
-```
+仅供参考
 
-后面在APP里面执行su的时候，一定还得注意，在mainfest中添加，否则还得报错，但不会有权限的错
-
-```
+1、此链接第二标题 
+别忘了 
 android:sharedUserId="android.uid.system"
-并系统签名 此时你的APP才是真正的system app
+https://blog.csdn.net/qq_33750826/article/details/80848102
+
+2、在packages/app/settings找到setting的源码，可以看出需要去修改
+android.os.SystemProperties中的su_root
+
+3、这样你的app才有了最高的权限，实验在/system/etc下touch个文件删除文件，用java代码，执行su
+
 ```
 
 **三、GPIO调试**
