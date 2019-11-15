@@ -1,5 +1,7 @@
 # rk3288 debug kengs / that's so funny super_yu
 
+##如果你觉得这个对你有帮助，请加我微信whsgzcy，我给你发5块钱红包
+
 **一、编译Android源码准备**
 
 **1、外部环境建议**
