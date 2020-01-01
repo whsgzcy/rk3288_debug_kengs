@@ -300,8 +300,6 @@ TARGET_KERNEL_DTS    =rk3288-firefly-aio
 
 需求：把底下的摄像头打开
 
-camera.png
-
 ![please clone](https://raw.githubusercontent.com/whsgzcy/rk3288_debug_kengs/master/images/camera.png)
 
 我比较了Firefly的提交记录，前后版本的比较，得出 修改的地方有
