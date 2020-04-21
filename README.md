@@ -1,3 +1,11 @@
+**前言：**
+
+1、嵌入式开发，驱动、设备、总线，对于去学习熟悉度基本为zero的这块我唯一的方法就是用时间去耗，在此非常感谢原中兴主任高工的大力支持，真的是大力支持，没有他的支持，我寸步难行
+
+2、其实越在这方面的有所进展就越能理解Android，Android不只是一个apk那么简单的，非常有意思，就像第一口酒，第一口烟那样，令人心情舒畅
+
+3、第五章I2C的内容，是摘抄自一篇博客，纯手敲，图也是自己用RP画的，当然我也会加入自己的理解
+
 # rk3288 debug kengs / that's so funny super_yu
 
 **如果你觉得这个对你有帮助，请加我微信whsgzcy，我给你发5块钱红包**
@@ -119,6 +127,78 @@ arch/arm/configs/
 http://wiki.t-firefly.com/zh_CN/Firefly-RK3288/compile_android.html
 ```
 
+**3、Ubuntu 安装 vbox(VM) 问题**
+
+```
+注意，这个是个巨坑！！！
+
+像我这样的菜鸟会在Windows上虚拟Ubuntu，但这不能把真机的性能完全发挥出来，所以大多数人选择 直接Ubuntu，顶多再虚拟一个Windows，一下就是我在这方面遇到的问题，很是痛苦，
+
+现象，我们安装好vbox之后，再去安装虚拟机，Ubuntu或者Windows，会出现这样一个错，
+
+***************** ******************** ********************* ***************
+Kernel driver not installed (rc=-1908)
+
+The VirtualBox Linux kernel driver (vboxdrv) is either not loaded or there is a permission problem with /dev/vboxdrv.
+Please reinstall the kernel module by executing
+
+'/sbin/vboxconfig'
+
+as root
+
+where:sulibOslnit what:3
+
+xxxxx
+xxxxx
+**************** ******************** ********************** ***************
+
+这个，网上乱七八糟的东西一大堆，我想诺诺的问一句，你们自己验证过吗？
+
+我们从这个应用的log可以看出:
+
+***************** ******************** ********************* ***************
+vboxdrv:
+Running module version sanity check.
+ -Origin module
+  -No origin module exists within this kernel
+ -Installation
+  -Installation to /lib/modules/4.15.0-45-generic/updates/dkms
+
+vboxnetadp.ko:
+Running module version sanity check.
+ -Origin module
+  -No origin module exists within this kernel
+  -Installation
+   -Installation to /lib/modules/4.15.0-45-generic/updates/dkms
+
+vboxnetflt.ko:
+Running module version sanity check.
+ -Origin module
+  -No origin module exists within this kernel
+  -Installation
+  -Installation to /lib/modules/4.15.0-45-generic/updates/dkms
+
+vboxpci.ko:
+Running module version sanity check.
+ -Origin module
+  -No origin module exists within this kernel
+  -Installation
+  -Installation to /lib/modules/4.15.0-45-generic/updates/dkms
+
+  ...
+
+depmod.....
+
+DKMS: install completed.
+
+***************** ******************** ********************* ***************
+
+他明显就是缺少驱动啊，在Ubuntu下处理这个问题的最好方式是：
+
+sudo apt-get -y install virtualbox
+
+```
+
 **二、APP Root**
 
 注意了，又是一个巨坑
@@ -161,6 +241,8 @@ cat /sys/class/gpio/gpio237/value
 ```
 
 **四、设备树**
+
+**未完待续，，，**
 
 其实这个我煎熬了一段时间，我试图想把他说清楚，说的不清不楚也行，但程序员优良淳朴的天性告诉我，不行，所以，我想就我目前能触达到的地方，整理出来，以希望有大佬给我点拨
 
@@ -539,3 +621,87 @@ static int spi_match_device(struct device *dev, struct device_driver *drv)
 ```
 
 当一个驱动支持两个或多个设备的时候，这些不同的dts中的设备兼容属性都会写入驱动OF匹配表，因此驱动可以通过BootLoader传递给内核设备树中真正节点的兼容性以确定研究是哪一种设备
+
+**五、I2C**
+
+**也是未完待续，，，**
+
+**linux下I2C驱动架构全面分析**
+
+**I2C概述**
+
+I2C是philips提出的外设总线
+
+I2C只有两条线，一条是串行数据线SDA，一条是时钟线SCL，使用SCL，SDA这两根信号线就实现了设备之间的数据交互，它方便了工程师的布线
+
+因此，I2C总线被非常广泛的应用在EEPROM，实时钟，小型LCD等设备与CPU的接口中
+
+**linux下的驱动思路**
+
+在linux系统下编写I2C驱动，目前主要有两种方法，一种是把I2C设备当作一个普通的字符设备来处理，另一种是利用linux下I2C驱动体系结构来完成，下面比较下这两种方法
+
+第一种方法
+
+优点：思路比较直接，不需要花很多时间去了解linux中复杂的I2C子系统的操作方法
+
+缺点：
+
+要求工程师不仅要对I2C设备的操作熟悉，而且要熟悉I2C的适配器（I2C控制器）操作
+
+要求工程师对I2C的设备器及I2C的设备操作方法都比较熟悉，最重要的是写出的程序可以移植性差
+
+对内核的资源无法直接使用，因为内核提供所有I2C设备器以及设备驱动都是基于I2C子系统的格式
+
+第一种方法的优点就是第二种方法的缺点
+第一种方法的缺点就是第二种方法的优点
+。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
+
+I2C架构概述
+
+Linux的I2C体系结构分为3个组成部分：
+
+I2C核心，I2C核心提供了I2C总线驱动和设备驱动的注册，注销方法，I2C通信方法(“algorithm”)上层的，与具体适配器无关的代码以及探测设备，检测设备地址的上层代码等
+
+I2C总线驱动，I2C总线驱动是对I2C硬件体系结构中适配器端的实现，适配器可由CPU控制，甚至可以直接集成在CPU内部
+
+I2C设备驱动，I2C设备驱动(也称为客户驱动)是对I2C硬件体系结构中设备端的实现，设备一般挂接在受CPU控制的I2C
+I2C设备驱动，I2C设备驱动(也称为客户驱动)是对I2C硬件体系结构中设备端的实现，设备一般挂接在受CPU控制的I2C适配器上，通过适配器与CPU交互数据
+。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
+
+linux驱动中I2C驱动架构
+
+图片xxxx
+
+上图完整的描述了Linux i2c驱动架构，虽然I2C硬件体系结构比较简单，但是i2c体系结构在Linux中的实现却相当复杂
+
+那么我们如何编写特定的i2c接口器件的驱动程序？就是说上述架构中的哪些部分需要我们完成，而哪些是linux内核已经完善或者是芯片提供商已经提供的？
+
+架构层次分类
+
+第一层，提供i2c Adapter的硬件驱动，探测，初始化i2c Adapter(如申请i2c的io地址和中断号)，驱动soc控制的i2c Adapter在硬件上产生信号(start、stop、ack)以及处理i2c中断
+
+第二层，提供i2c Adapter的algorithm，用具体适配器的xxx_xferf()函数来填充i2c_algorithm的master_xfer函数指针，并把赋值后的i2c_algorithm再赋值给i2c_adapter的algo指针
+
+第三层，实现i2c设备驱动中的i2c_driver接口，用具体的i2c device设备的attach_adapter()，detach_adapter方法赋值给i2c_driver的成员函数指针，实现设备device与总线(或者叫adapter)的挂接
+
+第四层，实现i2c设备所对应的具体device的驱动，i2c_driver只是实现设备与总线的挂接，而挂接在总线上的设备则是千差万别的，所以要实现具体设备的device的write()、read()、ioctl()、等方法，赋值给file_operations，然后注册字符设备(多数是字符设备)
+
+第一层和第二层又叫i2c总线驱动(bus)，第三第四属于i2c设备驱动(device driver)
+
+在linux驱动架构中，几乎不需要驱动开发人员再添加bus，因为linux内核几乎集成所有总线bus，如usb，pci，i2c等等，并且总线bus中的(与特定硬件相关的代码)已由芯片提供商编写完成，例如三星的xxxx,平台总线bus为/drivers/i2c/buses/i2c-s3c2410.c
+
+第三第四层与特定device相干的就需要驱动工程师来实现了。
+
+。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
+
+Linux下I2C体系文件架构
+
+在林旭内核源码中的driver目录下包含一个i2c目录
+
+i2c-core.c，这个文件实现了I2C核心的功能以及/proc/bus/i2c*接口
+
+i2c-dev.c实现了I2C适配器设备文件的功能，每一个I2C适配器都被分配一个设备，通过适配器访设备时的主设备号都为89，次设备号位0-255，I2C-dev.c并没有针特定的设备而设计，只是提供了通用的
+read()，write()和ioctl等接口，应用层可以借用这些接口访问挂接在适配器上的I2C设备的存储空间或寄存器，并控制I2C设备的工作方式
+busses文件夹这个文件中包含了一些I2C总线驱动，如针对S3C2410，S3C2240，S3C6410等处理器的I2C控制器驱动为i2c-s3c2410.c
+
+algos文件夹实现了一些I2C总线适配器的algorithm
